@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:package_info_plus/package_info_plus.dart';
 
-const baseApi = 'http://localhost:8000/';
+const baseApi = 'https://api-mixnmatch-ig1a.vercel.app/';
 // const baseApi = 'https://d039-1-20-61-84.ngrok-free.app';
 // const baseApi = 'https://mcic-uat-api.gramick.dev/';
 // const baseApiProd = 'https://mcic-uat-api.gramick.dev/';
