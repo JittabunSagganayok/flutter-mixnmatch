@@ -1,4 +1,7 @@
+import 'package:get/get.dart';
 import 'package:mixnmatch/components/button.dart';
+import 'package:mixnmatch/controllers/branch_controller.dart';
+import 'package:mixnmatch/controllers/login_controller.dart';
 import 'package:mixnmatch/main.dart';
 import 'package:mixnmatch/models/auth_model.dart';
 import 'package:mixnmatch/providers/dio_provider.dart';
@@ -119,14 +122,23 @@ class _SignUpFormState extends State<SignUpForm> {
 
                   //if register success, proceed to login
                   if (userRegistration) {
-                    final token = await DioProvider()
-                        .getToken(_emailController.text, _passController.text);
-
-                    if (token) {
-                      auth.loginSuccess({}, {}); //update login status
-                      //rediret to main page
-                      MyApp.navigatorKey.currentState!.pushNamed('main');
+                    final LoginController c = Get.put(LoginController());
+                    try {
+                      await c.loginEmail(
+                        email: _emailController.text,
+                        password: _passController.text,
+                      );
+                      Navigator.of(context).pushNamed('branchSelectScreen',
+                          arguments: {'isFromMain': false});
+                    } on LoginException catch (e) {
+                      // _showErrorDialog(context, e.message);
+                    } catch (e) {
+                      // _showErrorDialog(context,
+                      //     "An unexpected error occurred. Please try again.");
                     }
+                    final BranchSelectController controller =
+                        Get.put(BranchSelectController());
+                    controller.fetchBranches();
                   } else {
                     print('register not successful');
                   }

@@ -30,7 +30,7 @@ class LoginController extends GetxController {
 
         // await prefs.init();
         prefs.accessToken = result["token"];
-        List<dynamic> branchIds = result["branchId"];
+        List<dynamic> branchIds = result["branchId"] ?? [1];
         if (branchIds.isNotEmpty) {
           prefs.accessbranchId = branchIds.last.toString();
         } else {

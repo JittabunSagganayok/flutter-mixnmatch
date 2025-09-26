@@ -13,7 +13,9 @@ class DioProvider {
 
       if (response.statusCode == 200 && response.data != '') {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', response.data);
+        //
+        await prefs.setString('token', response.data["token"]);
+
         return true;
       } else {
         return false;
@@ -40,8 +42,15 @@ class DioProvider {
   Future<dynamic> registerUser(
       String username, String email, String password) async {
     try {
-      var user = await Dio().post('${baseApi}api/register',
-          data: {'name': username, 'email': email, 'password': password});
+      var user = await Dio().post('${baseApi}api/register', data: {
+        'username': username,
+        'email': email,
+        'password': password,
+        'role': 'customer',
+        'fname': username,
+        'lname': '',
+        'isActive': 1
+      });
       if (user.statusCode == 201 && user.data != '') {
         return true;
       } else {
