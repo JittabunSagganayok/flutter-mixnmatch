@@ -15,43 +15,53 @@ class UploadController extends GetxController {
   final SubmitDisplayController c = Get.put(SubmitDisplayController());
   var urlImage = ''.obs;
   RxBool isloadingpicprofile = false.obs;
+
   Future<UploadResult> profileImage() async {
     isloadingpicprofile.value = true;
     update();
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
-      //allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
     );
 
     if (result != null) {
       File file = File(result.files.single.path!);
       String fileName = result.files.single.name;
 
+      // ✅ 1) อ่านไฟล์เป็น bytes
+      List<int> imageBytes = await file.readAsBytes();
+      // ✅ 2) แปลงเป็น base64
+      String base64Image = base64Encode(imageBytes);
+
+      // ✅ 3) เตรียมฟอร์มสำหรับส่งไป ImgBB
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('https://mcic-uat-api.gramick.dev/api/systems/upload'),
+        Uri.parse('https://api.imgbb.com/1/upload'),
       );
 
-      request.files.add(await http.MultipartFile.fromPath('file', file.path,
-          filename: fileName));
-      request.fields['module'] = 'customer/file';
+      request.fields['key'] =
+          "2bf0c42dda87f36be6bed9fc7e6bd198"; // ใส่ API Key ของคุณ
+      request.fields['image'] = base64Image;
 
       http.StreamedResponse response = await request.send();
       String responseString = await response.stream.bytesToString();
       dynamic jsonResponse = json.decode(responseString);
-      if (response.statusCode == 200) {
-        String url = jsonResponse['result']['url'];
+
+      if (response.statusCode == 200 && jsonResponse["success"] == true) {
+        String url = jsonResponse['data']['url'];
         urlImage.value = url;
-        print('Upload Image Success');
-        print(fileName);
-        print(urlImage.value);
+
+        print('✅ Upload Image Success');
+        print('FileName: $fileName');
+        print('Image URL: $url');
 
         c.urlImage.value = urlImage.value;
         isloadingpicprofile.value = false;
         update();
+
         return UploadResult(true, false, fileName);
       } else {
-        print('Upload Image Fail');
+        print('❌ Upload Image Fail');
         isloadingpicprofile.value = false;
         c.urlImage.value = "";
         update();
